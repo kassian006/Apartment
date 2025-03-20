@@ -124,10 +124,6 @@ class AgentRating(models.Model):
         return f'{self.agent} - {self.rating}'
 
 
-
-
-
-
 class AboutUs(models.Model):
     img = models.ImageField(upload_to='owner_img')
     about_owner = models.TextField()
