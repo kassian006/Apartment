@@ -17,7 +17,7 @@ class CategorySerializer(serializers.ModelSerializer):
 class HouseListSerializer(serializers.ModelSerializer):
     class Meta:
         model = House
-        fields = ['type_home', 'house_name', 'home_image', 'price', 'location', 'bathroom', 'bedroom', 'square']
+        fields = ['type_home', 'house_name', 'home_image', 'price', 'location', 'bathroom', 'bedroom', 'square',]
 
 
 class HouseCreateSerializer(serializers.ModelSerializer):
@@ -27,6 +27,30 @@ class HouseCreateSerializer(serializers.ModelSerializer):
 
 
 class HouseDetailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = House
+        fields = ['category', 'type_home', 'house_name', 'price', 'bedroom', 'bathroom', 'square',
+                  'aminities', 'bathroom_type', 'parking_type', 'number_room', 'floor', 'series',
+                  'descriptions', 'owner', 'house_roules', 'location']
+
+# ----------------------------------rent--------------------------------------------------
+
+
+
+
+class HouseListRentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = House
+        fields = ['type_home', 'house_name', 'home_image', 'price', 'location', 'bathroom', 'bedroom', 'square',]
+
+
+class HouseCreateRentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = House
+        fields = '__all__'
+
+
+class HouseDetailRentSerializer(serializers.ModelSerializer):
     class Meta:
         model = House
         fields = ['category', 'type_home', 'house_name', 'price', 'bedroom', 'bathroom', 'square',

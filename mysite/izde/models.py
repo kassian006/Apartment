@@ -53,7 +53,17 @@ class UserProfile(AbstractUser):
 
 
 class Category(models.Model):
-    category_name = models.CharField(max_length=80)
+    CHOICES_PROPERTY = (
+        ('Apartment', 'Apartment'),
+        ('Villa', 'Villa'),
+        ('Townhouse', 'Townhouse'),
+        ('Penthouse', 'Penthouse'),
+        ('Whole Building', 'Whole Building')
+    )
+    property_typ = models.CharField(max_length=32, choices=CHOICES_PROPERTY)
+
+    def __str__(self):
+        return f'{self.property_typ}'
 
 
 class House(models.Model):
