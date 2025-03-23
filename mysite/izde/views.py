@@ -1,12 +1,10 @@
 from rest_framework import viewsets, generics, status, permissions, serializers
-from .models import (UserProfile, House, Category)
-from .serializers import (UserProfileSimpleSerializer, HouseListSerializer, HouseCreateSerializer,
-                          HouseDetailSerializer, CategorySerializer, HouseListRentSerializer, HouseCreateRentSerializer,
-                          HouseDetailRentSerializer)
 from django_filters.rest_framework import DjangoFilterBackend
 from .filters import HouseFilter
 from rest_framework.filters import OrderingFilter, SearchFilter
 from .paginations import *
+from .serializers import *
+from .models import *
 
 
 class CategoryViewSet(viewsets.ModelViewSet):
@@ -58,3 +56,36 @@ class HouseRetrieveUpdateDestroyRentAPIView(generics.RetrieveUpdateDestroyAPIVie
     serializer_class = HouseDetailRentSerializer
 
 
+class UserProfileViewSet(viewsets.ModelViewSet):
+    queryset = UserProfile.objects.all()
+    serializer_class = UserProfileSerializer
+
+
+class AgentProfileListAPIView(generics.ListAPIView):
+    queryset = AgentProfile.objects.all()
+    serializer_class = AgentProfileListSerializer
+
+
+class AgentProfileInfoAPIView(generics.ListAPIView):
+    queryset = AgentProfile.objects.all()
+    serializer_class = AgentProfileInfoSerializer
+
+
+class AgentProfileDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = AgentProfile.objects.all()
+    serializer_class = AgentProfileDetailSerializer
+
+
+class ResumeViewSet(viewsets.ModelViewSet):
+    queryset = Resume.objects.all()
+    serializer_class = ResumeSerializer
+
+
+class AgentRatingViewSet(viewsets.ModelViewSet):
+    queryset = AgentRating.objects.all()
+    serializer_class = AgentRatingSerializer
+
+
+class HouseReviewViewSet(viewsets.ModelViewSet):
+    queryset = HouseReview.objects.all()
+    serializer_class = HouseReviewSerializer
