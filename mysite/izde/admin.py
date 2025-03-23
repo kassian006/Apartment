@@ -2,7 +2,15 @@ from django.contrib import admin
 from .models import *
 
 
-admin.site.register(House)
+class LocationInline(admin.TabularInline):
+    model = Location
+    extra = 1
+
+
+class LocationAdmin(admin.ModelAdmin):
+    inlines = [LocationInline]
+
+admin.site.register(House, LocationAdmin)
 admin.site.register(Category)
 from django.contrib.auth.admin import UserAdmin
 

@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import UserProfile, House, Category
+from .models import *
 
 
 class UserProfileSimpleSerializer(serializers.ModelSerializer):
@@ -58,14 +58,10 @@ class HouseDetailRentSerializer(serializers.ModelSerializer):
                   'descriptions', 'owner', 'house_roules', 'location']
 
 
-from .models import *
-
-
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
         fields = ['username', 'email', 'password', 'role', 'phone_number']
-        extra_kwargs = {'password': {'write_only': True}}
 
 
 class SocialSerializer(serializers.ModelSerializer):
@@ -166,3 +162,10 @@ class HouseReviewSerializer(serializers.ModelSerializer):
     class Meta:
         model = HouseReview
         fields = '__all__'
+
+
+class UserProfileEditSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserProfile
+        fields = ['first_name', 'last_name', 'location']
+

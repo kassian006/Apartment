@@ -58,7 +58,7 @@ class HouseRetrieveUpdateDestroyRentAPIView(generics.RetrieveUpdateDestroyAPIVie
 
 class UserProfileViewSet(viewsets.ModelViewSet):
     queryset = UserProfile.objects.all()
-    serializer_class = UserProfileSerializer
+    serializer_class = UserProfileEditSerializer
 
 
 class AgentProfileListAPIView(generics.ListAPIView):

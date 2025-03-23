@@ -30,7 +30,6 @@ CHOICES_CONDITIONS = (
 class UserProfile(AbstractUser):
     user_role = models.CharField(max_length=16, choices=ROLE_CHOICES, default='client')
     phone_number = PhoneNumberField(null=True, blank=True)
-    areas = models.CharField(max_length=50, null=True, blank=True)
     image = models.ImageField(upload_to='user_image/',null=True, blank=True)
     email = models.EmailField(unique=True)
     age = models.PositiveSmallIntegerField(validators=[MinValueValidator(18),
@@ -83,7 +82,7 @@ class Hobby(models.Model):
 
 
 class Area(models.Model):
-    agent = models.ForeignKey(AgentProfile, on_delete=models.CASCADE, related_name='areas')
+    agent = models.ForeignKey(AgentProfile, on_delete=models.CASCADE, related_name='agent_areas')
     area_name = models.CharField(max_length=50)
 
     def __str__(self):
@@ -180,10 +179,20 @@ class House(models.Model):
     descriptions = models.TextField()
     owner = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='owner_house')
     house_roules = models.CharField(max_length=255)
-    location = models.CharField(max_length=150)
 
     def __str__(self):
         return f'{self.house_name}-{self.type_home}'
+
+
+class Location(models.Model):
+    location_name = models.CharField(max_length=32)
+    house = models.ForeignKey('House', on_delete=models.CASCADE, related_name='location')
+    profile = models.ForeignKey('UserProfile', on_delete=models.CASCADE, related_name='location_profile')
+
+    def __str__(self):
+        return self.location_name
+
+
 
 
 class HouseImage(models.Model):

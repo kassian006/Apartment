@@ -42,11 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'izde',
-<<<<<<< HEAD
     'django_filters',
-=======
-    'rest_framework',
->>>>>>> df9ed1a874fff7335d4ae059daee10d9b13b6eed
 ]
 
 MIDDLEWARE = [
@@ -141,8 +137,5 @@ REST_FRAMEWORK = {
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-<<<<<<< HEAD
-=======
 
->>>>>>> df9ed1a874fff7335d4ae059daee10d9b13b6eed
 AUTH_USER_MODEL = 'izde.UserProfile'
