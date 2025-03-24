@@ -14,7 +14,15 @@ class CategorySerializer(serializers.ModelSerializer):
         fields = ['category_name']
 
 
+class LocationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Location
+        fields = ['location_name']
+
+
 class HouseListSerializer(serializers.ModelSerializer):
+    location = LocationSerializer(many=True, read_only=True)
+
     class Meta:
         model = House
         fields = ['type_home', 'house_name', 'home_image', 'price', 'location', 'bathroom', 'bedroom', 'square',]
@@ -27,6 +35,8 @@ class HouseCreateSerializer(serializers.ModelSerializer):
 
 
 class HouseDetailSerializer(serializers.ModelSerializer):
+    location = LocationSerializer(many=True, read_only=True)
+
     class Meta:
         model = House
         fields = ['category', 'type_home', 'house_name', 'price', 'bedroom', 'bathroom', 'square',
@@ -165,7 +175,10 @@ class HouseReviewSerializer(serializers.ModelSerializer):
 
 
 class UserProfileEditSerializer(serializers.ModelSerializer):
+    location_profile = LocationSerializer(many=True, read_only=True)
+    owner_house = HouseListSerializer(many=True, read_only=True)
+
     class Meta:
         model = UserProfile
-        fields = ['first_name', 'last_name', 'location']
+        fields = ['first_name', 'last_name', 'location_profile', 'owner_house']
 

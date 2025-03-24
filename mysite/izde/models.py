@@ -186,13 +186,11 @@ class House(models.Model):
 
 class Location(models.Model):
     location_name = models.CharField(max_length=32)
-    house = models.ForeignKey('House', on_delete=models.CASCADE, related_name='location')
     profile = models.ForeignKey('UserProfile', on_delete=models.CASCADE, related_name='location_profile')
+    house = models.ForeignKey('House', on_delete=models.CASCADE, related_name='location')
 
     def __str__(self):
         return self.location_name
-
-
 
 
 class HouseImage(models.Model):
