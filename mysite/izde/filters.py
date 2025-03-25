@@ -1,5 +1,5 @@
 import django_filters
-from django_filters import FilterSet
+from django_filters import FilterSet, CharFilter
 from .models import *
 
 
@@ -17,4 +17,12 @@ class HouseFilter(FilterSet):
             'price': ['gt', 'lt'],
         }
 
+
+class AgentProfileFilter(FilterSet):
+    # Фильтр по полю language_name из связанной модели Languages
+    language_name = CharFilter(field_name='languages__language_name', lookup_expr='exact')
+
+    class Meta:
+        model = AgentProfile
+        fields = ['language_name']
 

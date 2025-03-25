@@ -8,6 +8,7 @@ from multiselectfield import MultiSelectField
 ROLE_CHOICES = (
     ('agent', 'agent'),
     ('client', 'client'),
+    ('owner', 'owner')
 )
 
 CHOICES_CONDITIONS = (
@@ -39,13 +40,33 @@ class UserProfile(AbstractUser):
     def __str__(self):
         return f'{self.username}-{self.user_role}'
 
+    # def get_property_count(self):
+    #     """
+    #     Возвращает количество домов, принадлежащих пользователю.
+    #     Если пользователь не является владельцем, возвращает 0.
+    #     """
+    #     if self.user_role != 'owner':
+    #         return 0
+    #     return self.owner_house.count()
+
+    def get_property_count(self):
+        owner_house = self.owner_house.all()
+        if owner_house.exists():
+            return owner_house.count()
+        return 0
+
 class AgentProfile(UserProfile):
     position = models.CharField(max_length=80)
     active_listings = models.IntegerField(default=0)
     experience_since = models.DateField()
     image_company = models.ImageField(upload_to='company_image/', null=True, blank=True)
     superagent = models.BooleanField(default=False)
-    social_agent = models.CharField(max_length=255, blank=True, null=True)
+
+    def get_avg_rating(self):
+        ratings = self.agents.all()
+        if ratings.exists():
+            return round(sum(i.rating for i in ratings) / ratings.count(), 1)
+        return 0
 
     def __str__(self):
         return f"{self.username} - {self.position}-{self.user_role}"
@@ -225,6 +246,11 @@ class AgentRating(models.Model):
 class Resume(models.Model):
     agent = models.ForeignKey(AgentProfile, on_delete=models.CASCADE, related_name='agent_resume')
     resume = models.FileField(upload_to='resume_agents/')
+    status = models.CharField(max_length=20, choices=[
+        ('declined', 'Declined'),
+        ('accepted', 'Accepted')
+    ])
+    created_date = models.DateTimeField(auto_now_add=True, null=True, blank=True)
 
     def __str__(self):
         return f'{self.agent}-{self.resume}'

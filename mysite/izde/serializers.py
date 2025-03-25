@@ -31,7 +31,14 @@ class HouseListSerializer(serializers.ModelSerializer):
 class HouseCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = House
-        fields = '__all__'
+        fields = ['category', 'type_home', 'house_name', 'price', 'bedroom', 'bathroom', 'square',
+                  'aminities', 'bathroom_type', 'parking_type', 'number_room', 'floor', 'series',
+                  'descriptions', 'house_roules', 'location']  # Убираем 'owner', чтобы клиент не передавал его
+
+    def create(self, validated_data):
+        request = self.context['request']  # Получаем текущего пользователя
+        house = House.objects.create(owner=request.user, **validated_data)  # Автоматически назначаем владельца
+        return house
 
 
 class HouseDetailSerializer(serializers.ModelSerializer):
@@ -57,7 +64,14 @@ class HouseListRentSerializer(serializers.ModelSerializer):
 class HouseCreateRentSerializer(serializers.ModelSerializer):
     class Meta:
         model = House
-        fields = '__all__'
+        fields = ['category', 'type_home', 'house_name', 'price', 'bedroom', 'bathroom', 'square',
+                  'aminities', 'bathroom_type', 'parking_type', 'number_room', 'floor', 'series',
+                  'descriptions', 'house_roules', 'location']  # Убираем 'owner', чтобы клиент не передавал его
+
+    def create(self, validated_data):
+        request = self.context['request']  # Получаем текущего пользователя
+        house = House.objects.create(owner=request.user, **validated_data)  # Автоматически назначаем владельца
+        return house
 
 
 class HouseDetailRentSerializer(serializers.ModelSerializer):
@@ -156,16 +170,51 @@ class AgentProfileDetailSerializer(serializers.ModelSerializer):
                   'languages', 'active_listings', 'skills', 'hobbies', 'selected_works', 'experiences', 'educations']
 
 
-class ResumeSerializer(serializers.ModelSerializer):
+class AgentProfileResumeSerializer(serializers.ModelSerializer):
+    avg_rating = serializers.SerializerMethodField()
+    class Meta:
+        model = AgentProfile
+        fields = ['first_name', 'last_name', 'image', 'position', 'avg_rating']
+
+    def get_avg_rating(self, obj):
+        return obj.get_avg_rating()
+
+
+class ResumeListSerializer(serializers.ModelSerializer):
+    agent = AgentProfileResumeSerializer(read_only=True)
     class Meta:
         model = Resume
-        fields = '__all__'
+        fields = ['agent', 'status', 'created_date']
+
+
+class ResumeDetailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Resume
+        fields = ['resume']
+
+
+class AgentProfileRatingSocialSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AgentProfile
+        fields = ['email', 'phone_number']
 
 
 class AgentRatingSerializer(serializers.ModelSerializer):
+    agent = AgentProfileResumeSerializer(read_only=True)
+    areas = AreaSerializer(many=True, read_only=True)
+    agents = AgentProfileRatingSocialSerializer(read_only=True)
+
     class Meta:
         model = AgentRating
-        fields = '__all__'
+        fields = ['agent', 'areas', 'agents', 'created_date']
+
+
+class AgentRatingCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AgentRating
+        fields = ['client', 'agent', 'rating', 'text', 'created_date']
+
+
 
 
 class HouseReviewSerializer(serializers.ModelSerializer):
@@ -177,8 +226,12 @@ class HouseReviewSerializer(serializers.ModelSerializer):
 class UserProfileEditSerializer(serializers.ModelSerializer):
     location_profile = LocationSerializer(many=True, read_only=True)
     owner_house = HouseListSerializer(many=True, read_only=True)
+    property_count = serializers.SerializerMethodField()
 
     class Meta:
         model = UserProfile
-        fields = ['first_name', 'last_name', 'location_profile', 'owner_house']
+        fields = ['image', 'first_name', 'last_name', 'user_role', 'property_count', 'location_profile', 'phone_number', 'email', 'owner_house']
+
+    def get_property_count(self, obj):
+            return obj.get_property_count()
 
