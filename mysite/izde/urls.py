@@ -3,9 +3,7 @@ from rest_framework import routers
 from django.urls import path, include
 
 router = routers.SimpleRouter()
-router.register(r'category', CategoryViewSet, basename='categories')
 router.register(r'users', UserProfileViewSet, basename='users'),
-router.register(r'house_review', HouseReviewViewSet, basename='house_review'),
 
 urlpatterns = [
     path('', include(router.urls)),
@@ -28,5 +26,8 @@ urlpatterns = [
 
     path('agent_rating/', AgentRatingAPIView.as_view(), name='agent_rating'),
     path('agent_rating/create/', AgentRatingCreateAPIView.as_view(), name='agent_rating_create'),
+
+    path('house_review/', HouseReviewAPIView.as_view(), name='house_review'),
+    path('house_review/create/', HouseReviewCreateAPIView.as_view(), name='house_review_create'),
 
 ]

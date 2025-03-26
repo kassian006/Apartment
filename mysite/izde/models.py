@@ -146,20 +146,6 @@ class Education(models.Model):
         return f"{self.degree} at {self.institution_name}"
 
 
-class Category(models.Model):
-    CHOICES_PROPERTY = (
-        ('Apartment', 'Apartment'),
-        ('Villa', 'Villa'),
-        ('Townhouse', 'Townhouse'),
-        ('Penthouse', 'Penthouse'),
-        ('Whole Building', 'Whole Building')
-    )
-    property_typ = models.CharField(max_length=32, choices=CHOICES_PROPERTY)
-
-    def __str__(self):
-        return f'{self.property_typ}'
-
-
 class House(models.Model):
     CHOICES_BATHROOM = (
         ('Combined', 'combined'),
@@ -181,7 +167,14 @@ class House(models.Model):
         ('104', '104'),
         ('Individual project', 'Individual project'),
     )
-    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='category_home')
+    CHOICES_PROPERTY = (
+        ('Apartment', 'Apartment'),
+        ('Villa', 'Villa'),
+        ('Townhouse', 'Townhouse'),
+        ('Penthouse', 'Penthouse'),
+        ('Whole Building', 'Whole Building')
+    )
+    property_type = models.CharField(max_length=32, choices=CHOICES_PROPERTY)
     type_home = models.CharField(max_length=32, choices=CHOICES_HOME)
     house_name = models.CharField(max_length=80)
     price = models.DecimalField(max_digits=10, decimal_places=2)
@@ -203,6 +196,12 @@ class House(models.Model):
 
     def __str__(self):
         return f'{self.house_name}-{self.type_home}'
+
+    def get_avg_rating(self):
+        stars = self.house_review.all()
+        if stars.exists():
+            return round(sum(i.stars for i in stars) / stars.count(), 1)
+        return 0
 
 
 class Location(models.Model):
@@ -255,11 +254,4 @@ class Resume(models.Model):
     def __str__(self):
         return f'{self.agent}-{self.resume}'
 
-
-class AboutUs(models.Model):
-    img = models.ImageField(upload_to='owner_img')
-    about_owner = models.TextField()
-
-    def __str__(self):
-        return f'{self.about_owner}'
 

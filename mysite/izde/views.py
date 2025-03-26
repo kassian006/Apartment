@@ -1,16 +1,13 @@
 from rest_framework import viewsets, generics, status, permissions, serializers
 from django_filters.rest_framework import DjangoFilterBackend
-from .filters import HouseFilter, AgentProfileFilter
+from .filters import HouseFilter, AgentProfileFilter, ResumeListFilter, AgentRatingFilter
 from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.response import Response
+from rest_framework import filters
+from django_filters import rest_framework as django_filters
 from .paginations import *
 from .serializers import *
 from .models import *
-
-
-class CategoryViewSet(viewsets.ModelViewSet):
-    queryset = Category.objects.all()
-    serializer_class = CategorySerializer
 
 
 class HouseListAPIView(generics.ListAPIView):
@@ -19,7 +16,7 @@ class HouseListAPIView(generics.ListAPIView):
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     search_fields = ['location']
     filterset_class = HouseFilter
-    ordering_fields = ['price']
+    ordering_fields = ['price', 'bedroom']
     pagination_class = HousePagination
 
 
@@ -51,7 +48,7 @@ class HouseListRentAPIView(generics.ListAPIView):
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     search_fields = ['location']
     filterset_class = HouseFilter
-    ordering_fields = ['price']
+    ordering_fields = ['price', 'bedroom']
     pagination_class = HousePagination
 
 
@@ -102,6 +99,10 @@ class AgentProfileDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
 class ResumeListAPIView(generics.ListAPIView):
     queryset = Resume.objects.all()
     serializer_class = ResumeListSerializer
+    filter_backends = [filters.SearchFilter, django_filters.DjangoFilterBackend]
+    filterset_class = ResumeListFilter
+    search_fields = ['agent__username']  # Поле для поиска
+
 
 
 class ResumeDetailAPIView(generics.RetrieveAPIView):
@@ -112,6 +113,9 @@ class ResumeDetailAPIView(generics.RetrieveAPIView):
 class AgentRatingAPIView(generics.ListAPIView):
     queryset = AgentRating.objects.all()
     serializer_class = AgentRatingSerializer
+    filter_backends = [filters.SearchFilter, django_filters.DjangoFilterBackend]
+    filterset_class = AgentRatingFilter
+    search_fields = ['agent__username']
 
 
 class AgentRatingCreateAPIView(generics.CreateAPIView):
@@ -131,6 +135,26 @@ class AgentRatingCreateAPIView(generics.CreateAPIView):
             return Response({'detail': 'Сервер не работает'}, status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-class HouseReviewViewSet(viewsets.ModelViewSet):
+class HouseReviewAPIView(generics.ListAPIView):
     queryset = HouseReview.objects.all()
     serializer_class = HouseReviewSerializer
+    filter_backends = [filters.SearchFilter, django_filters.DjangoFilterBackend]
+    search_fields = ['house__house_name']  # Поле для поиска
+
+
+class HouseReviewCreateAPIView(generics.CreateAPIView):
+    serializer_class = HouseReviewCreateSerializer
+
+    def create(self, request, *args, **kwargs):
+        try:
+            serializer = self.get_serializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            agent = serializer.save()
+            return Response(serializer.data, status.HTTP_201_CREATED)
+        except serializers.ValidationError as e:
+            return Response({'detail': 'Маалымат туура эмес берилди'}, status.HTTP_400_BAD_REQUEST)
+        except NameError as e:
+            return Response({'detail': f'{e}, Ошибка в коде'}, status.HTTP_500_INTERNAL_SERVER_ERROR)
+        except Exception:
+            return Response({'detail': 'Сервер не работает'}, status.HTTP_500_INTERNAL_SERVER_ERROR)
+

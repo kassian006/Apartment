@@ -8,12 +8,6 @@ class UserProfileSimpleSerializer(serializers.ModelSerializer):
         fields = ['first_name', 'last_name']
 
 
-class CategorySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Category
-        fields = ['category_name']
-
-
 class LocationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Location
@@ -21,8 +15,6 @@ class LocationSerializer(serializers.ModelSerializer):
 
 
 class HouseListSerializer(serializers.ModelSerializer):
-    location = LocationSerializer(many=True, read_only=True)
-
     class Meta:
         model = House
         fields = ['type_home', 'house_name', 'home_image', 'price', 'location', 'bathroom', 'bedroom', 'square',]
@@ -31,7 +23,7 @@ class HouseListSerializer(serializers.ModelSerializer):
 class HouseCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = House
-        fields = ['category', 'type_home', 'house_name', 'price', 'bedroom', 'bathroom', 'square',
+        fields = ['property_type', 'type_home', 'house_name', 'price', 'bedroom', 'bathroom', 'square',
                   'aminities', 'bathroom_type', 'parking_type', 'number_room', 'floor', 'series',
                   'descriptions', 'house_roules', 'location']  # Убираем 'owner', чтобы клиент не передавал его
 
@@ -46,7 +38,7 @@ class HouseDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = House
-        fields = ['category', 'type_home', 'house_name', 'price', 'bedroom', 'bathroom', 'square',
+        fields = ['property_type', 'type_home', 'house_name', 'price', 'bedroom', 'bathroom', 'square',
                   'aminities', 'bathroom_type', 'parking_type', 'number_room', 'floor', 'series',
                   'descriptions', 'owner', 'house_roules', 'location']
 
@@ -64,7 +56,7 @@ class HouseListRentSerializer(serializers.ModelSerializer):
 class HouseCreateRentSerializer(serializers.ModelSerializer):
     class Meta:
         model = House
-        fields = ['category', 'type_home', 'house_name', 'price', 'bedroom', 'bathroom', 'square',
+        fields = ['property_type', 'type_home', 'house_name', 'price', 'bedroom', 'bathroom', 'square',
                   'aminities', 'bathroom_type', 'parking_type', 'number_room', 'floor', 'series',
                   'descriptions', 'house_roules', 'location']  # Убираем 'owner', чтобы клиент не передавал его
 
@@ -77,7 +69,7 @@ class HouseCreateRentSerializer(serializers.ModelSerializer):
 class HouseDetailRentSerializer(serializers.ModelSerializer):
     class Meta:
         model = House
-        fields = ['category', 'type_home', 'house_name', 'price', 'bedroom', 'bathroom', 'square',
+        fields = ['property_type', 'type_home', 'house_name', 'price', 'bedroom', 'bathroom', 'square',
                   'aminities', 'bathroom_type', 'parking_type', 'number_room', 'floor', 'series',
                   'descriptions', 'owner', 'house_roules', 'location']
 
@@ -215,12 +207,28 @@ class AgentRatingCreateSerializer(serializers.ModelSerializer):
         fields = ['client', 'agent', 'rating', 'text', 'created_date']
 
 
+class HouseListRatingSerializer(serializers.ModelSerializer):
+    avg_rating = serializers.SerializerMethodField()
+    class Meta:
+        model = House
+        fields = ['type_home', 'house_name', 'home_image', 'avg_rating']
+
+    def get_avg_rating(self, obj):
+        return obj.get_avg_rating()
 
 
 class HouseReviewSerializer(serializers.ModelSerializer):
+    house = HouseListRatingSerializer(read_only=True)
     class Meta:
         model = HouseReview
-        fields = '__all__'
+        fields = ['house', 'text']
+
+
+class HouseReviewCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = HouseReview
+        fields = ['client', 'house', 'stars', 'text', 'created_date']
+
 
 
 class UserProfileEditSerializer(serializers.ModelSerializer):
