@@ -1,5 +1,99 @@
 from rest_framework import serializers
 from .models import *
+from rest_framework_simplejwt.tokens import RefreshToken
+from django.contrib.auth import authenticate
+
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserProfile
+        fields = ('username', 'email', 'password', 'first_name', 'last_name',
+                  'age', 'phone_number', 'user_role',)
+        extra_kwargs = {'passwords':{'write only':True}}
+
+    def create(self, validated_data):
+        user = UserProfile.objects.create_user(**validated_data)
+        return user
+
+    def to_representation(self, instance):
+        refresh = RefreshToken.for_user(instance)
+        return {
+            'user':{
+                'username':instance.username,
+                'email':instance.email,
+            },
+            'access':str(refresh.access_token),
+            'refresh':str(refresh),
+        }
+
+
+class LoginSerializer(serializers.Serializer):
+    username = serializers.CharField()
+    password = serializers.CharField(write_only=True)
+
+    def validate(self, data):
+        user = authenticate(**data)
+        if user and user.is_active:
+            return user
+        raise serializers.ValidationError('неверные учетные данные')
+
+    def to_representation(self, instance):
+        refresh = RefreshToken.for_user(instance)
+        return {
+            'user':{
+                'username':instance.username,
+                'email':instance.email,
+            },
+            'access':str(refresh.access_token),
+            'refresh':str(refresh),
+        }
+
+
+class AgentUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AgentProfile
+        fields = ('username', 'email', 'password', 'first_name', 'last_name',
+                  'age', 'phone_number', 'user_role', 'position', 'active_listings', 'experience_since',
+                  'superagent', 'social_agent')
+        extra_kwargs = {'passwords':{'write only':True}}
+
+    def create(self, validated_data):
+        user = AgentProfile.objects.create_user(**validated_data)
+        return user
+
+    def to_representation(self, instance):
+        refresh = RefreshToken.for_user(instance)
+        return {
+            'user':{
+                'username':instance.username,
+                'email':instance.email,
+            },
+            'access':str(refresh.access_token),
+            'refresh':str(refresh),
+        }
+
+
+class AgentLoginSerializer(serializers.Serializer):
+    username = serializers.CharField()
+    password = serializers.CharField(write_only=True)
+
+    def validate(self, data):
+        user = authenticate(**data)
+        if user and user.is_active:
+            return user
+        raise serializers.ValidationError('неверные учетные данные')
+
+    def to_representation(self, instance):
+        refresh = RefreshToken.for_user(instance)
+        return {
+            'user':{
+                'username':instance.username,
+                'email':instance.email,
+            },
+            'access':str(refresh.access_token),
+            'refresh':str(refresh),
+        }
+
 
 
 class UserProfileSimpleSerializer(serializers.ModelSerializer):

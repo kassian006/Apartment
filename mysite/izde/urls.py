@@ -10,6 +10,18 @@ router.register(r'agent_rating', AgentRatingViewSet, basename='agent_rating'),
 router.register(r'house_review', HouseReviewViewSet, basename='house_review'),
 
 urlpatterns = [
+    #------------------------client_register------------------------#
+    path('register/', RegisterView.as_view(), name='register'),
+    path('login/', CustomLoginView.as_view(), name='login'),
+    path('logout/', LogoutView.as_view(), name='logout'),
+
+
+    #------------------------agent_register--------------------------#
+    path('agent_register/', AgentRegisterView.as_view(), name='agent_register'),
+    path('agent_login/', AgentCustomLoginView.as_view(), name='agent_login'),
+    path('agent_logout/', AgentLogoutView.as_view(), name='agent_logout'),
+
+
     path('', include(router.urls)),
     path('house/', HouseListAPIView.as_view(), name='house_list'),
     path('house_create/', HouseCreateAPIView.as_view(), name='house_create'),
