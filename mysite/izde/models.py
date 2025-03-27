@@ -174,6 +174,11 @@ class House(models.Model):
         ('Penthouse', 'Penthouse'),
         ('Whole Building', 'Whole Building')
     )
+    PUBLISH_CHOICES = (
+        ('pending', 'Pending'),  # Ожидает рассмотрения
+        ('accepted', 'Accepted'),  # Принято
+        ('declined', 'Declined'),  # Отклонено
+    )
     property_type = models.CharField(max_length=32, choices=CHOICES_PROPERTY)
     type_home = models.CharField(max_length=32, choices=CHOICES_HOME)
     house_name = models.CharField(max_length=80)
@@ -192,6 +197,10 @@ class House(models.Model):
     series = models.CharField(max_length=32, choices=SERIA_CHOICES)
     descriptions = models.TextField()
     owner = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='owner_house')
+    subject = models.CharField(max_length=255)
+    body = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    status_publish = models.CharField(max_length=20, choices=PUBLISH_CHOICES, default='pending')
     house_roules = models.CharField(max_length=255)
 
     def __str__(self):
@@ -253,5 +262,23 @@ class Resume(models.Model):
 
     def __str__(self):
         return f'{self.agent}-{self.resume}'
+
+
+class Message(models.Model):
+    STATUS_CHOICES = (
+        ('published', 'Published'),
+        ('unpublished', 'Unpublished'),
+        ('declined', 'Declined'),
+    )
+
+    sender = models.CharField(max_length=100)
+    subject = models.CharField(max_length=255)
+    body = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='unpublished')
+    is_read = models.BooleanField(default=False)  # Новое поле: прочитано или нет
+
+    def __str__(self):
+        return f"{self.sender} - {self.subject} - {self.status}"
 
 

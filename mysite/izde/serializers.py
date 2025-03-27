@@ -1,11 +1,129 @@
 from rest_framework import serializers
 from .models import *
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.exceptions import TokenError
+from django.contrib.auth import authenticate
+
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserProfile
+        fields = ('username', 'email', 'password', 'first_name', 'last_name',
+                  'age', 'phone_number', 'user_role',)
+        extra_kwargs = {'passwords':{'write only':True}}
+
+    def create(self, validated_data):
+        user = UserProfile.objects.create_user(**validated_data)
+        return user
+
+    def to_representation(self, instance):
+        refresh = RefreshToken.for_user(instance)
+        return {
+            'user':{
+                'username':instance.username,
+                'email':instance.email,
+            },
+            'access':str(refresh.access_token),
+            'refresh':str(refresh),
+        }
+
+
+class LoginSerializer(serializers.Serializer):
+    username = serializers.CharField()
+    password = serializers.CharField(write_only=True)
+
+    def validate(self, data):
+        user = authenticate(**data)
+        if user and user.is_active:
+            return user
+        raise serializers.ValidationError('неверные учетные данные')
+
+    def to_representation(self, instance):
+        refresh = RefreshToken.for_user(instance)
+        return {
+            'user':{
+                'username':instance.username,
+                'email':instance.email,
+            },
+            'access':str(refresh.access_token),
+            'refresh':str(refresh),
+        }
+
+class LogoutSerializer(serializers.Serializer):
+    refresh = serializers.CharField(required=True)
+
+    def validate(self, data):
+        refresh_token = data.get('refresh')
+        try:
+            # Проверяем, что токен валиден
+            token = RefreshToken(refresh_token)
+            return data
+        except TokenError:
+            raise serializers.ValidationError({'detail': 'Недействительный токен.'})
+
+    def save(self):
+        # Добавляем токен в черный список
+        refresh_token = self.validated_data['refresh']
+        token = RefreshToken(refresh_token)
+        token.blacklist()
+
+
+class AgentUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AgentProfile
+        fields = ('username', 'email', 'password', 'first_name', 'last_name',
+                  'age', 'phone_number', 'user_role', 'position', 'active_listings', 'experience_since',)
+        extra_kwargs = {'passwords':{'write only':True}}
+
+    def create(self, validated_data):
+        user = AgentProfile.objects.create_user(**validated_data)
+        return user
+
+    def to_representation(self, instance):
+        refresh = RefreshToken.for_user(instance)
+        return {
+            'user':{
+                'username':instance.username,
+                'email':instance.email,
+            },
+            'access':str(refresh.access_token),
+            'refresh':str(refresh),
+        }
+
+
+class AgentLoginSerializer(serializers.Serializer):
+    username = serializers.CharField()
+    password = serializers.CharField(write_only=True)
+
+    def validate(self, data):
+        user = authenticate(**data)
+        if user and user.is_active:
+            return user
+        raise serializers.ValidationError('неверные учетные данные')
+
+    def to_representation(self, instance):
+        refresh = RefreshToken.for_user(instance)
+        return {
+            'user':{
+                'username':instance.username,
+                'email':instance.email,
+            },
+            'access':str(refresh.access_token),
+            'refresh':str(refresh),
+        }
+
 
 
 class UserProfileSimpleSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
         fields = ['first_name', 'last_name']
+
+
+class UserProfileRealtySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserProfile
+        fields = ['first_name', 'last_name', 'email']
 
 
 class LocationSerializer(serializers.ModelSerializer):
@@ -18,6 +136,24 @@ class HouseListSerializer(serializers.ModelSerializer):
     class Meta:
         model = House
         fields = ['type_home', 'house_name', 'home_image', 'price', 'location', 'bathroom', 'bedroom', 'square',]
+
+
+class RealtyApplicationListSerializer(serializers.ModelSerializer):
+    owner_house = UserProfileSimpleSerializer(read_only=True)
+    class Meta:
+        model = House
+        fields = ['id', 'owner_house', 'subject', 'body', 'created_at', 'status_publish']
+
+
+class RealtyApplicationDetailSerializer(serializers.ModelSerializer):
+    owner_house = UserProfileRealtySerializer(read_only=True)
+    location = LocationSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = House
+        fields = ['owner_house', 'property_type', 'type_home', 'house_name', 'price', 'bedroom', 'bathroom', 'square',
+                  'aminities', 'bathroom_type', 'parking_type', 'number_room', 'floor', 'series',
+                  'descriptions', 'house_roules', 'location', 'status_publish']
 
 
 class HouseCreateSerializer(serializers.ModelSerializer):
@@ -242,4 +378,10 @@ class UserProfileEditSerializer(serializers.ModelSerializer):
 
     def get_property_count(self, obj):
             return obj.get_property_count()
+
+
+class MessageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Message
+        fields = ['id', 'sender', 'subject', 'body', 'created_at', 'status', 'is_read']
 

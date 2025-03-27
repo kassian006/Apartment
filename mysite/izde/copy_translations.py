@@ -1,7 +1,7 @@
 # copy_translations.py
 import os
 import django
-from izde.models import (
+from .models import (
     UserProfile, AgentProfile, Social, Skill, Hobby, Area, Languages,
     SelectedWork, Experience, Education, House, Location, HouseImage,
     HouseReview, AgentRating, Resume
