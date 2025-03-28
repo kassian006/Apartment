@@ -22,6 +22,9 @@ urlpatterns = [
 
 
     path('', include(router.urls)),
+    path('password_reset/verify_code/', verify_reset_code, name='verify_reset_code'),
+    path('password_reset/', include('django_rest_passwordreset.urls', namespace='password_reset')),
+
     path('house/', HouseListAPIView.as_view(), name='house_list'),
     path('house_create/', HouseCreateAPIView.as_view(), name='house_create'),
     path('house/<int:pk>/', HouseRetrieveUpdateDestroyAPIView.as_view(), name='house_detail'),
